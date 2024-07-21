@@ -78,31 +78,7 @@ const UserInfoMain = ({ subMenuOn, setDayforSQL }) => {
 
     try {
       const db = await SQLite.openDatabaseAsync("MountBedge.db");
-
-      // 실패
-      // LOG  [Error: Calling the 'prepareAsync' function has failed
-      //   → Caused by: Error code 1: no such function: NOW]
-      // const a = await db.getFirstAsync("SELECT NOW()");
-      // console.log('a' ,a);
-
-      // 테이블 삭제
-      // await db.runAsync("DROP TABLE UserInfo");
-
-      // 훗날 사용할 코드
-      // const statement = await db.getAllAsync(`
-      //   SELECT * FROM
-      //   UserInfo WHERE
-      //   Name LIKE ? AND
-      //   Birth LIKE ? AND
-      //   Gender LIKE ? AND
-      //   Address LIKE ? AND
-      //   PhoneNumber LIKE ?`, `%${nameData}%`, `%${birthData}%`, `%${genderData}%`, `%${addrData}%`, `%${pNData}%`);
-      // const result = await statement.executeAsync(SearchInfo, a, b);
-      // const firstRow = await result.getFirstAsync();
-
-      // 성공 코드
-      // const firstRow = await db.getFirstAsync(`SELECT * FROM UserInfo WHERE Birth BETWEEN '2000-01-01' and '2002-06-12' `);
-      // console.log('firstRow', firstRow);
+      
     } catch (error) {
       console.log(error);
     }
