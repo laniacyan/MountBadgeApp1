@@ -17,6 +17,13 @@ import * as SQLite from "expo-sqlite";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import { AntDesign } from "@expo/vector-icons";
+import { InputDay } from "./components/AddHikingData/InputDay";
+import { InputMount } from "./components/AddHikingData/InputMount";
+import { InputPoint } from "./components/AddHikingData/InputPoint";
+import { InputName } from "./components/AddHikingData/InputName";
+import { ModalMount } from "./components/AddHikingData/ModalMount";
+import { ModalPoint } from "./components/AddHikingData/ModalPoint";
+import { ModalName } from "./components/AddHikingData/ModalName";
 
 export const AddHikingData = () => {
   const [dayData, setDayData] = useState(new Date());
@@ -27,9 +34,17 @@ export const AddHikingData = () => {
   const [modalNVisible, setModalNVisible] = useState(false);
   const [mountDB, setMountDB] = useState([]);
   const [userDB, setUserDB] = useState([]);
+  const [searchValue, setSearchValue] = useState(false);
+  const [checks, setChecks] = useState([]);
 
   const pointList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+  // modal의 상태를 결정한다.
+  const SetModal = (type) => {
+    type == "mount" ? setModalMVisible(!modalMVisible) : null;
+    type == "point" ? setModalPVisible(!modalPVisible) : null;
+    type == "name" ? setModalNVisible(!modalNVisible) : null;
+  };
   // 데이터를 지운다.(Todo)
   const Clear = () => {
     setDayData(new Date());
@@ -48,8 +63,11 @@ export const AddHikingData = () => {
   };
   const setDayforSQL = (data) => {
     const Year = data.getFullYear();
-    const Month = (data.getMonth()+1 < 10 ? '0' + (data.getMonth()+1) : (data.getMonth()+1));
-    const Day = (data.getDate() < 10 ? '0' + data.getDate() : data.getDate());
+    const Month =
+      data.getMonth() + 1 < 10
+        ? "0" + (data.getMonth() + 1)
+        : data.getMonth() + 1;
+    const Day = data.getDate() < 10 ? "0" + data.getDate() : data.getDate();
     return Year + "-" + Month + "-" + Day;
   };
   useEffect(() => {
@@ -72,7 +90,6 @@ export const AddHikingData = () => {
       console.log(error);
     }
   }
-
   const DeleteTable = async () => {
     const db = await SQLite.openDatabaseAsync("MountBedge.db");
     console.log("delete table UserInfo");
@@ -84,7 +101,6 @@ export const AddHikingData = () => {
     }
   };
   // DeleteTable();
-
   const InsertHikingData = async () => {
     // 올바른 데이터가 들어왔는지 확인한다.
     // 받은 값을 db에 저장한다.
@@ -129,11 +145,6 @@ export const AddHikingData = () => {
       console.error("Error testing database connection:", error);
     }
   };
-
-  const [searchValue, setSearchValue] = useState(false);
-
-  const [checks, setChecks] = useState([]);
-
   const setButtonName = () => {
     let names = "";
     if (checks.length == 0) {
@@ -141,7 +152,6 @@ export const AddHikingData = () => {
     } else return checks.join("\n");
   };
   const buttonName = setButtonName();
-
   const closeModal = () => {
     setModalMVisible(false);
     setModalPVisible(false);
@@ -179,7 +189,6 @@ export const AddHikingData = () => {
       );
     }
   };
-
   const listItemViewUser = (item) => {
     // 체크박스 누를 시
     const change_item = () => {
@@ -239,7 +248,6 @@ export const AddHikingData = () => {
     }
     return;
   };
-
   const listPointView = (item) => {
     return (
       <View>
@@ -257,68 +265,21 @@ export const AddHikingData = () => {
       </View>
     );
   };
-
   return (
     <View style={styles.AddDataMenu}>
       {/* 날짜 메뉴 */}
-      <View style={[styles.SubMenuAdd, { justifyContent: "space-between" }]}>
-        <View>
-          <Text style={{ flex: 1, fontSize: "33%", textAlign: "center" }}>
-            날짜
-          </Text>
-        </View>
-        <View>
-          <DateTimePicker
-            style={{
-              flex: 1,
-              fontSize: "25%",
-              backgroundColor: "tomato",
-            }}
-            value={dayData}
-            mode={"date"}
-            is24Hour={true}
-            onChange={onChange}
-            locale="ko-kr"
-          />
-        </View>
-      </View>
+      <InputDay dayData={dayData} onChange={onChange} />
       <View style={styles.AddMenuLine}></View>
       {/* 산 메뉴 */}
-      <View style={styles.SubMenuAdd}>
-        <Text style={styles.AddData}>산</Text>
-        <View style={styles.AddDataPlace}>
-          <Button
-            onPress={() => setModalMVisible(!modalMVisible)}
-            title={mountData}
-            color="#841584"
-          />
-        </View>
-      </View>
+      <InputMount SetModal={SetModal} mountData={mountData} />
       <View style={styles.AddMenuLine}></View>
       {/* 점수 메뉴 */}
-      <View style={styles.SubMenuAdd}>
-        <Text style={styles.AddData}>점수</Text>
-        <View style={styles.AddDataPlace}>
-          <Button
-            onPress={() => setModalPVisible(!modalPVisible)}
-            title={pointData.toString()}
-            color="#841584"
-          />
-        </View>
-      </View>
+      <InputPoint SetModal={SetModal} pointData={pointData} />
       <View style={styles.AddMenuLine}></View>
       {/* 이름 메뉴 */}
-      <View style={styles.SubMenuAdd}>
-        <Text style={styles.AddData}>이름</Text>
-        <View style={styles.AddDataPlace}>
-          <Button
-            onPress={() => setModalNVisible(!modalNVisible)}
-            title={buttonName}
-            color="#841584"
-          />
-        </View>
-      </View>
+      <InputName SetModal={SetModal} buttonName={buttonName} />
       <View style={styles.ButtonLine}></View>
+
       {/* 데이터 추가 버튼 */}
       <Pressable onPress={InsertHikingData}>
         <Text style={styles.AddDataButton}>데이터 추가</Text>
@@ -329,195 +290,35 @@ export const AddHikingData = () => {
         <Text style={styles.AddDataButton}>내용 지우기</Text>
       </Pressable>
       {/* 산 modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalMVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalMVisible(!modalMVisible);
-        }}
-      >
-        <View
-          style={{
-            flex: 0.7,
-            marginTop: "50%",
-            margin: "10%",
-            backgroundColor: "#519C77",
-            borderRadius: 20,
-            padding: 30,
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
-          }}
-        >
-          {/* 검색창 */}
-          <View style={{ flexDirection: "row" }}>
-            <TextInput
-              onChangeText={setSearchValue}
-              value={searchValue}
-              placeholder="찾으시는 산 이름을 입력해 주세요."
-              placeholderTextColor={"#000"}
-              style={{ flex: 1 }}
-            />
-            <AntDesign
-              name="close"
-              size={24}
-              color="black"
-              onPress={() => closeModal()}
-            />
-          </View>
-          {/* 결과창 */}
-          <Text> </Text>
-          <View>
-            <FlatList
-              style={{}}
-              contentContainerStyle={{ paddingHorizontal: 20 }}
-              data={mountDB}
-              // keyExtractor={(item, index) => index.toString()}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => listItemViewMount(item)}
-            />
-          </View>
-        </View>
-      </Modal>
+      <ModalMount
+        modalMVisible={modalMVisible}
+        setModalMVisible={setModalMVisible}
+        setSearchValue={setSearchValue}
+        searchValue={searchValue}
+        closeModal={closeModal}
+        mountDB={mountDB}
+        listItemViewMount={listItemViewMount}
+      />
       {/* 점수 modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalPVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalPVisible(!modalPVisible);
-        }}
-      >
-        {/* 스타일 수정 필요 */}
-        <SafeAreaView
-          style={{
-            flex: 0.7,
-            marginTop: "50%",
-            margin: "10%",
-            backgroundColor: "#519C77",
-            borderRadius: 20,
-            padding: 30,
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
-          }}
-        >
-          <Pressable
-            style={{ alignItems: "center", margin: "3%" }}
-            onPress={() => setModalPVisible(!modalPVisible)}
-          >
-            <Text style={{ fontSize: "20%", color: "#EFF8FB" }}>선택</Text>
-          </Pressable>
-          <FlatList
-            style={{}}
-            contentContainerStyle={{ paddingHorizontal: 20 }}
-            data={pointList}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => listPointView(item)}
-          />
-          <Pressable
-            style={{ color: "#81F7F3", alignItems: "center", margin: "3%" }}
-            onPress={() => setModalPVisible(!modalPVisible)}
-          >
-            <Text style={{ fontSize: "20%", color: "#CEF6CE" }}>선택</Text>
-          </Pressable>
-        </SafeAreaView>
-      </Modal>
+      <ModalPoint
+        modalPVisible={modalPVisible}
+        setModalPVisible={setModalPVisible}
+        pointList={pointList}
+        listPointView={listPointView}
+      />
       {/* 이름 modal */}
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 22,
-        }}
-      >
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={modalNVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalNVisible(!modalNVisible);
-          }}
-        >
-          <View
-            style={{
-              marginTop: "50%",
-              margin: "10%",
-              backgroundColor: "#519C77",
-              borderRadius: 20,
-              padding: 30,
-              shadowColor: "#000",
-              shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 4,
-              elevation: 5,
-              flex: 0.7,
-            }}
-          >
-            {/* 검색창 */}
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
-              <TextInput
-                style={{ backgroundColor: "#CEF6D8", flex: 1, fontSize: "17%" }}
-                onChangeText={setSearchValue}
-                value={searchValue}
-                placeholder="찾으시는 이름을 입력해 주세요."
-                placeholderTextColor={"#000"}
-              />
-              <AntDesign
-                name="close"
-                size={30}
-                color="black"
-                onPress={() => closeModal()}
-              />
-            </View>
-            {/* 결과창 */}
-            <View style={{ flex: 1 }}>
-              <FlatList
-                contentContainerStyle={{ paddingHorizontal: 20 }}
-                data={userDB}
-                // keyExtractor={(item, index) => index.toString()}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => listItemViewUser(item)}
-              />
-            </View>
-            <Pressable
-              style={{
-                backgroundColor: "#E1F5A9",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: "4%",
-                flex: 0.1,
-              }}
-              onPress={() => closeModal()}
-            >
-              <Text style={{ fontSize: "17%" }}>선택 완료</Text>
-            </Pressable>
-          </View>
-        </Modal>
-      </View>
+      <ModalName
+        modalNVisible={modalNVisible}
+        setModalNVisible={setModalNVisible}
+        setSearchValue={setSearchValue}
+        searchValue={searchValue}
+        closeModal={closeModal}
+        userDB={userDB}
+        listItemViewUser={listItemViewUser}
+      />
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   AddDataMenu: {
     flex: 1,
