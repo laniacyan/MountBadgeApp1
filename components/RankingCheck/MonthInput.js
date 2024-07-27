@@ -20,7 +20,6 @@ import { Picker } from "@react-native-picker/picker";
 
 export const MonthInput = ({ SearchMonth }) => {
   const [year, setYear] = useState(new Date().getFullYear());
-  const [monthly, setMonthly] = useState();
   const [yearModal, setYearModal] = useState(false);
   const [nowMonth, setNowMonth] = useState(false);
   const [yearRange, setYearRange] = useState([]);
@@ -54,13 +53,8 @@ export const MonthInput = ({ SearchMonth }) => {
   };
   // 월 버튼 누를 시 동작
   const onPress = async(item) => {
-    console.log('item', item);
     setNowMonth(item);
-    console.log('now month', nowMonth);
-    // onChangeStart(undefined, `${year}-${item}-1`);
-    // onChangeEnd(undefined, `${year}-${item}-31`);
-    setMonthly();
-    SearchMonth(year, nowMonth);
+    SearchMonth(year, item);
   };
   const MonthTable = () => {
     const months = [
@@ -151,7 +145,7 @@ export const MonthInput = ({ SearchMonth }) => {
               title="선택"
               onPress={() => {
                 setYearModal(!yearModal);
-                SearchHikingRecord();
+                SearchMonth(year, nowMonth);
               }}
             />
           </View>

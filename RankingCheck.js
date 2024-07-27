@@ -22,13 +22,10 @@ import { MonthInput } from "./components/RankingCheck/MonthInput";
 import { DirectInput } from "./components/RankingCheck/DirectInput";
 
 export const RankingCheck = () => {
-  const [searchStart, setSearchStart] = useState(new Date());
-  const [searchEnd, setSearchEnd] = useState(new Date());
   const [dateInput, setDateInput] = useState(true);
   const [searchValue, setSearchValue] = useState([]);
 
   // console.log("searchValue", searchValue);
-
 
   const setDayforSQL = (data) => {
     const Year = data.getFullYear();
@@ -40,34 +37,17 @@ export const RankingCheck = () => {
     console.log("return for sql data");
     return Year + "-" + Month + "-" + Day;
   };
+
   const SearchMonth = async (year, month) => {
-    setSearchStart(`${year}-${month}-01`);
-    setSearchEnd(`${year}-${month}-31`);
-    console.log("year, month", year, month);
-    // SearchHikingRecord();
-  };
-  const SearchDirect = async (startDate, endDate) => {
-    console.log('search start, end 1', searchStart, searchEnd);
-    console.log('startDate endDate 1', startDate, endDate);
-    const newSdate = setDayforSQL(startDate);
-    const newEdate = setDayforSQL(endDate);
-    setSearchStart(newSdate);
-    setSearchEnd(newEdate);
-    console.log('search start, end 2', searchStart, searchEnd);
-    console.log('startDate endDate 2', startDate, endDate);
-    await SearchHikingRecord();
-  };
-  // 날짜를 이용해 DB에서 산행 기록을 검색한다.
-  const SearchHikingRecord = async () => {
     try {
       const db = await SQLite.openDatabaseAsync("MountBedge.db");
       const data = await db.getAllAsync(
-        `SELECT * FROM HikingData WHERE Date BETWEEN '${searchStart}' AND '${searchEnd}';`
+        `SELECT * FROM HikingData WHERE Date BETWEEN '${year}-${month}-01' AND '${year}-${month}-31';`
       );
       setSearchValue(data);
       console.log(
         "sql search code",
-        `SELECT * FROM HikingData WHERE Date BETWEEN '${searchStart}' AND '${searchEnd}';`
+        `SELECT * FROM HikingData WHERE Date BETWEEN '${year}-${month}-01' AND '${year}-${month}-31';`
       );
       // Alert.alert("산행 기록 조회 완료.");
       return;
@@ -75,6 +55,28 @@ export const RankingCheck = () => {
       console.error("Error testing database connection:", error);
     }
   };
+  const SearchDirect = async (startDate, endDate) => {
+    try {
+      const db = await SQLite.openDatabaseAsync("MountBedge.db");
+      const data = await db.getAllAsync(
+        `SELECT * FROM HikingData WHERE Date BETWEEN '${setDayforSQL(
+          startDate
+        )}' AND '${setDayforSQL(endDate)}';`
+      );
+      setSearchValue(data);
+      console.log(
+        "sql search code",
+        `SELECT * FROM HikingData WHERE Date BETWEEN '${setDayforSQL(
+          startDate
+        )}' AND '${setDayforSQL(endDate)}';`
+      );
+      // Alert.alert("산행 기록 조회 완료.");
+      return;
+    } catch (error) {
+      console.error("Error testing database connection:", error);
+    }
+  };
+  // 날짜를 이용해 DB에서 산행 기록을 검색한다.
   const SearchValueList = (item) => {
     // console.log("item", item);
     return (
@@ -123,7 +125,7 @@ export const RankingCheck = () => {
   };
 
   return (
-    <View style={{ width: "100%", height: "100%" }}>
+    <View style={{ width: "100%", height: "100%", flex: 1 }}>
       {/* 날짜 입력 메뉴 */}
       <View
         style={{
@@ -183,13 +185,13 @@ export const RankingCheck = () => {
             <Text>직접 입력</Text>
           </Pressable>
         </View>
-        <View style={{ width: "100%", height: "70%", backgroundColor: "red" }}>
+        <View style={{ width: "100%", height: "80%", backgroundColor: "red" }}>
           {dateInput == true && <MonthInput SearchMonth={SearchMonth} />}
           {dateInput == false && <DirectInput SearchDirect={SearchDirect} />}
         </View>
       </View>
       {/* 산행 목록 */}
-      <View style={{}}>
+      <View style={{ flex:1 }}>
         <FlatList
           style={{ marginTop: 30 }}
           contentContainerStyle={{ paddingHorizontal: 20 }}
