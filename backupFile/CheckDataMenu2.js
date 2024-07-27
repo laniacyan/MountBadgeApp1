@@ -19,7 +19,7 @@ import { AntDesign } from "@expo/vector-icons";
 import Feather from "@expo/vector-icons/Feather";
 import { Picker } from "@react-native-picker/picker";
 
-export const CheckDataMenu2 = () => {
+export const RankingCheck = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [year, setYear] = useState(new Date().getFullYear());

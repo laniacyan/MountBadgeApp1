@@ -5,14 +5,14 @@ import * as SQLite from "expo-sqlite";
 
 import { AddHikingData } from "./AddHikingData.js";
 import { HikingRecordManage } from "./HikingRecordManage.js";
-import { CheckDataMenu2 } from "./CheckDataMenu2.js";
+import { RankingCheck } from "./RankingCheck.js";
 import { UserInfoManage } from "./UserInfoManage";
 import { MountInfoManage } from "./MountInfoManage.js";
 import { CreateTable } from "./CreateTable";
 
 
 export default function App() {
-  const [screen, setScreen] = useState("5");
+  const [screen, setScreen] = useState("3");
 
   useEffect(() => {
     CreateTable();
@@ -47,7 +47,7 @@ export default function App() {
       </View>
       {screen === "1" && <AddHikingData />}
       {screen === "2" && <HikingRecordManage />}
-      {screen === "3" && <CheckDataMenu2 />}
+      {screen === "3" && <RankingCheck />}
       {screen === "4" && <UserInfoManage />}
       {screen === "5" && <MountInfoManage />}
     </View>
