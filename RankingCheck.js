@@ -24,6 +24,7 @@ import { DirectInput } from "./components/RankingCheck/DirectInput";
 export const RankingCheck = () => {
   const [dateInput, setDateInput] = useState(true);
   const [searchValue, setSearchValue] = useState([]);
+  const [searchDate, setSearchDate] = useState([]);
 
   // console.log("searchValue", searchValue);
 
@@ -50,6 +51,7 @@ export const RankingCheck = () => {
         `SELECT * FROM HikingData WHERE Date BETWEEN '${year}-${month}-01' AND '${year}-${month}-31';`
       );
       // Alert.alert("산행 기록 조회 완료.");
+      setSearchDate([`${year}-${month}-01`, `${year}-${month}-31`]);
       return;
     } catch (error) {
       console.error("Error testing database connection:", error);
@@ -70,12 +72,14 @@ export const RankingCheck = () => {
           startDate
         )}' AND '${setDayforSQL(endDate)}';`
       );
+      setSearchDate([setDayforSQL(startDate), setDayforSQL(endDate)]);
       // Alert.alert("산행 기록 조회 완료.");
       return;
     } catch (error) {
       console.error("Error testing database connection:", error);
     }
   };
+  console.log("searchValue", searchValue);
   // 날짜를 이용해 DB에서 산행 기록을 검색한다.
   const SearchValueList = (item) => {
     // console.log("item", item);
@@ -143,7 +147,10 @@ export const RankingCheck = () => {
           }}
         >
           <Pressable
-            onPress={() => setDateInput(true)}
+            onPress={() => {
+              setDateInput(true);
+              setSearchValue([]);
+            }}
             style={({ pressed }) => [
               {
                 width: "30%",
@@ -164,7 +171,10 @@ export const RankingCheck = () => {
             <Text>월별 입력</Text>
           </Pressable>
           <Pressable
-            onPress={() => setDateInput(false)}
+            onPress={() => {
+              setDateInput(false);
+              setSearchValue([]);
+            }}
             style={({ pressed }) => [
               {
                 width: "30%",
@@ -191,14 +201,23 @@ export const RankingCheck = () => {
         </View>
       </View>
       {/* 산행 목록 */}
-      <View style={{ flex:1 }}>
-        <FlatList
-          style={{ marginTop: 30 }}
-          contentContainerStyle={{ paddingHorizontal: 20 }}
-          data={searchValue}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => SearchValueList(item)}
-        />
+      <View style={{ flex: 1 }}>
+        {searchValue.length == 0 ? (
+          <Text style={{ fontSize:20, textAlign:'center', marginTop:'50%' }}>검색된 정보가 없습니다.</Text>
+        ) : (
+          <View>
+            {/* <Text>
+              검색 기간 : {searchDate[0]} ~ {searchDate[1]}
+            </Text> */}
+            <FlatList
+              style={{ marginTop: 30 }}
+              contentContainerStyle={{ paddingHorizontal: 20 }}
+              data={searchValue}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => SearchValueList(item)}
+            />
+          </View>
+        )}
       </View>
     </View>
   );

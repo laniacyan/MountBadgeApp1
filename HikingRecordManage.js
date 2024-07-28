@@ -65,7 +65,6 @@ export const HikingRecordManage = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
   UpdateMainMenu: {
     flexDirection: "row",
