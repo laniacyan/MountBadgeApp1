@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-export const InputDay = ({ dayData, onChange }) => {
+export const InputDay = ({ dayData, onDayChange }) => {
   return (
     <View style={[styles.SubMenuAdd, { justifyContent: "space-between" }]}>
       <View>
@@ -19,7 +19,7 @@ export const InputDay = ({ dayData, onChange }) => {
           value={dayData}
           mode={"date"}
           is24Hour={true}
-          onChange={onChange}
+          onChange={onDayChange}
           locale="ko-kr"
         />
       </View>

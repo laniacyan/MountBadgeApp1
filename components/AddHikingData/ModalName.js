@@ -7,8 +7,9 @@ import {
   Pressable,
   FlatList,
 } from "react-native";
+import { useState, useEffect, useRef } from "react";
 import { AntDesign } from "@expo/vector-icons";
-
+// 이름 선택을 누르면 나오는 모달 창
 export const ModalName = ({
   modalNVisible,
   setModalNVisible,
@@ -16,8 +17,9 @@ export const ModalName = ({
   searchValue,
   closeModal,
   userDB,
-  listItemViewUser
+  listItemViewUser,
 }) => {
+
   return (
     <View
       style={{

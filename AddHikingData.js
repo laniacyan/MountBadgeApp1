@@ -17,59 +17,58 @@ import * as SQLite from "expo-sqlite";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import { AntDesign } from "@expo/vector-icons";
+// 추가 예정 데이터 선택 탭
 import { InputDay } from "./components/AddHikingData/InputDay";
 import { InputMount } from "./components/AddHikingData/InputMount";
 import { InputPoint } from "./components/AddHikingData/InputPoint";
 import { InputName } from "./components/AddHikingData/InputName";
+// 1차 모달 모음
 import { ModalMount } from "./components/AddHikingData/ModalMount";
 import { ModalPoint } from "./components/AddHikingData/ModalPoint";
 import { ModalName } from "./components/AddHikingData/ModalName";
+import { ModalPaste } from "./components/AddHikingData/ModalPaste";
+// DB 테이블 삭제
+import { DeleteTable } from "./components/DeleteTable";
 
 export const AddHikingData = () => {
+  // DeleteTable();
+  // 기록 추가 예정인 값
+  // 이름은 여러개를 저장할 수 있도록 checks에 배열로 저장한다.
   const [dayData, setDayData] = useState(new Date());
   const [mountData, setMountData] = useState("산 선택");
   const [pointData, setPointData] = useState("0");
+  const [checks, setChecks] = useState([]);
+  // 1차 모달창의 상태값
   const [modalMVisible, setModalMVisible] = useState(false);
   const [modalPVisible, setModalPVisible] = useState(false);
   const [modalNVisible, setModalNVisible] = useState(false);
+  // 산행 기록 추가 메뉴에 들어올 시 로드되는 산 및 유저 정보
   const [mountDB, setMountDB] = useState([]);
   const [userDB, setUserDB] = useState([]);
+  // 산, 이름, 이름 붙여넣기에서 사용되는 검색용 값.
   const [searchValue, setSearchValue] = useState(false);
-  const [checks, setChecks] = useState([]);
 
-  const pointList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const [modalPaste, setModalPaste] = useState(false);
+  // 고를 수 있는 점수값의 배열
+  const pointList = [0.5, 1, 2, 2.5, 3];
 
-  // modal의 상태를 결정한다.
-  const SetModal = (type) => {
-    type == "mount" ? setModalMVisible(!modalMVisible) : null;
-    type == "point" ? setModalPVisible(!modalPVisible) : null;
-    type == "name" ? setModalNVisible(!modalNVisible) : null;
-  };
-  // 데이터를 지운다.(Todo)
-  const Clear = () => {
+  // 추가 예정인 데이터를 지운다.
+  const ClearData = () => {
+    // 추가 예정인 이름 목록을 초기화한다.
+    const UserDBClear = () => {
+      setChecks([]);
+      userDB.map((item) =>
+        item.Checked == 1 ? (item.Checked = !item.Checked) : null
+      );
+    };
     setDayData(new Date());
     setMountData("산 선택");
     setPointData("0");
     UserDBClear();
+    console.log("data clear");
   };
-  const UserDBClear = () => {
-    setChecks([]);
-    userDB.map((item) =>
-      item.Checked == 1 ? (item.Checked = !item.Checked) : null
-    );
-  };
-  const onChange = (event, data) => {
-    setDayData(data);
-  };
-  const setDayforSQL = (data) => {
-    const Year = data.getFullYear();
-    const Month =
-      data.getMonth() + 1 < 10
-        ? "0" + (data.getMonth() + 1)
-        : data.getMonth() + 1;
-    const Day = data.getDate() < 10 ? "0" + data.getDate() : data.getDate();
-    return Year + "-" + Month + "-" + Day;
-  };
+
+  // 메뉴에 처음 들어올 시 산 및 유저 정보를 불러온다.
   useEffect(() => {
     loadingData("MountInfo");
     loadingData("UserInfo");
@@ -90,17 +89,29 @@ export const AddHikingData = () => {
       console.log(error);
     }
   }
-  const DeleteTable = async () => {
-    const db = await SQLite.openDatabaseAsync("MountBedge.db");
-    console.log("delete table UserInfo");
-    try {
-      await db.execAsync(`DROP TABLE HikingData`);
-      console.log("테이블 삭제 완료");
-    } catch (error) {
-      console.error("error", error);
-    }
+  // modal의 상태를 결정한다.
+  // Todo. 3개의 모달만 적용된 상태. 다른 모달도 적용시켜 보자.
+  const SetModal = (type) => {
+    type == "mount" && setModalMVisible(!modalMVisible);
+    type == "point" && setModalPVisible(!modalPVisible);
+    type == "name" && setModalNVisible(!modalNVisible);
   };
-  // DeleteTable();
+
+  // 날짜값을 변경한다.
+  const onDayChange = (event, data) => {
+    setDayData(data);
+  };
+  // 날짜 데이터 구조를 DB에 맞게 변경한다.
+  const setDayforSQL = (data) => {
+    const Year = data.getFullYear();
+    const Month =
+      data.getMonth() + 1 < 10
+        ? "0" + (data.getMonth() + 1)
+        : data.getMonth() + 1;
+    const Day = data.getDate() < 10 ? "0" + data.getDate() : data.getDate();
+    return Year + "-" + Month + "-" + Day;
+  };
+  // 추가 예정인 정보를 DB에 추가한다.
   const InsertHikingData = async () => {
     // 올바른 데이터가 들어왔는지 확인한다.
     // 받은 값을 db에 저장한다.
@@ -139,35 +150,23 @@ export const AddHikingData = () => {
       // 데이터 입력 성공 시 출력
       console.log("Database connection is working");
       Alert.alert("데이터 입력 완료");
-      Clear();
+      ClearData();
     } catch (error) {
       // 실패 시 출력
       console.error("Error testing database connection:", error);
     }
   };
-  const setButtonName = () => {
-    let names = "";
-    if (checks.length == 0) {
-      return "이름을 선택해주세요";
-    } else return checks.join("\n");
-  };
-  const buttonName = setButtonName();
+
   const closeModal = () => {
     setModalMVisible(false);
     setModalPVisible(false);
     setModalNVisible(false);
   };
-  const onPressModalOpen = () => {
-    console.log("팝업을 여는 중입니다.");
-    setIsModalVisible(true);
-  };
-  const onPressModalClose = () => {
-    setIsModalVisible(false);
-  };
   const setMount = (item) => {
     setMountData(item);
     closeModal();
   };
+  // Flatlist를 위한 함수들
   const listItemViewMount = (item) => {
     if (item.Name.includes(searchValue) == true || searchValue == "") {
       return (
@@ -192,17 +191,17 @@ export const AddHikingData = () => {
   const listItemViewUser = (item) => {
     // 체크박스 누를 시
     const change_item = () => {
-      if (item.Checked == false) add_check();
-      else if (item.Checked == true) del_check();
+      if (item.Checked == false) Add_check();
+      else if (item.Checked == true) Del_check();
       item.Checked = !item.Checked;
     };
     // 체크박스 추가
-    const add_check = () => {
+    const Add_check = () => {
       const newChecks = [...checks, item.Name];
       setChecks(newChecks);
     };
     // 체크박스 제외
-    const del_check = () => {
+    const Del_check = () => {
       const newChecks = [...checks].filter((value) => value != item.Name);
       setChecks(newChecks);
     };
@@ -265,10 +264,44 @@ export const AddHikingData = () => {
       </View>
     );
   };
+  // 붙여넣은 이름 목록으로 체크박스를 체크하고 싶다.
+  const PasteUserCheck = (users) => {
+    // 붙여넣은 값에 UserData와 같은 이름이 있는지 검색한다.
+    console.log("users", users);
+    // console.log("userDB", userDB);
+    // users를 반복한다.
+    // userDB를 반복한다.
+    // users의 값과 user.Name의 값이 같다면 Add_Check를 실행한다.
+    userDB.map((user) => user.Name);
+    let newChecks = [...checks];
+
+    users.map((Puser) => {
+      userDB.map((user) => {
+        if (user.Name == Puser) {
+          user.Checked = true;
+          newChecks = [...newChecks, user.Name];
+        }
+      });
+      userDB.map(
+        (user) =>
+          user.Name == Puser &&
+          console.log("Puser is ", Puser, " and ", "userDB Name is ", user.Name)
+      );
+    });
+    setChecks(newChecks);
+  };
+  // 선택된 이름을 표시해주는 함수
+  const setButtonName = () => {
+    console.log('checks', checks);
+    if (checks.length == 0) {
+      return "이름을 선택해주세요";
+    } else return checks.join("\n");
+  };
+  const buttonName = setButtonName();
   return (
     <View style={styles.AddDataMenu}>
       {/* 날짜 메뉴 */}
-      <InputDay dayData={dayData} onChange={onChange} />
+      <InputDay dayData={dayData} onDayChange={onDayChange} />
       <View style={styles.AddMenuLine}></View>
       {/* 산 메뉴 */}
       <InputMount SetModal={SetModal} mountData={mountData} />
@@ -277,7 +310,11 @@ export const AddHikingData = () => {
       <InputPoint SetModal={SetModal} pointData={pointData} />
       <View style={styles.AddMenuLine}></View>
       {/* 이름 메뉴 */}
-      <InputName SetModal={SetModal} buttonName={buttonName} />
+      <InputName
+        SetModal={SetModal}
+        buttonName={buttonName}
+        setModalPaste={setModalPaste}
+      />
       <View style={styles.ButtonLine}></View>
 
       {/* 데이터 추가 버튼 */}
@@ -286,7 +323,7 @@ export const AddHikingData = () => {
       </Pressable>
       <View style={styles.ButtonLine}></View>
       {/* 내용 지우기 버튼 */}
-      <Pressable onPress={Clear}>
+      <Pressable onPress={() => ClearData()}>
         <Text style={styles.AddDataButton}>내용 지우기</Text>
       </Pressable>
       {/* 산 modal */}
@@ -315,6 +352,13 @@ export const AddHikingData = () => {
         closeModal={closeModal}
         userDB={userDB}
         listItemViewUser={listItemViewUser}
+      />
+      <ModalPaste
+        modalPaste={modalPaste}
+        setModalPaste={setModalPaste}
+        setSearchValue={setSearchValue}
+        searchValue={searchValue}
+        PasteUserCheck={PasteUserCheck}
       />
     </View>
   );
