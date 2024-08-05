@@ -19,7 +19,6 @@ export const ModalName = ({
   userDB,
   listItemViewUser,
 }) => {
-
   return (
     <View
       style={{

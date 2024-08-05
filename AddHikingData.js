@@ -46,12 +46,13 @@ export const AddHikingData = () => {
   const [mountDB, setMountDB] = useState([]);
   const [userDB, setUserDB] = useState([]);
   // 산, 이름, 이름 붙여넣기에서 사용되는 검색용 값.
-  const [searchValue, setSearchValue] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const [modalPaste, setModalPaste] = useState(false);
   // 고를 수 있는 점수값의 배열
   const pointList = [0.5, 1, 2, 2.5, 3];
-
+  let pasteUserList = [];
+  let dupNum = 0;
   // 추가 예정인 데이터를 지운다.
   const ClearData = () => {
     // 추가 예정인 이름 목록을 초기화한다.
@@ -161,6 +162,7 @@ export const AddHikingData = () => {
     setModalMVisible(false);
     setModalPVisible(false);
     setModalNVisible(false);
+    setSearchValue(false);
   };
   const setMount = (item) => {
     setMountData(item);
@@ -189,6 +191,7 @@ export const AddHikingData = () => {
     }
   };
   const listItemViewUser = (item) => {
+    // console.log('checks 1', checks);
     // 체크박스 누를 시
     const change_item = () => {
       if (item.Checked == false) Add_check();
@@ -264,40 +267,61 @@ export const AddHikingData = () => {
       </View>
     );
   };
-  // 붙여넣은 이름 목록으로 체크박스를 체크하고 싶다.
-  const PasteUserCheck = (users) => {
-    // 붙여넣은 값에 UserData와 같은 이름이 있는지 검색한다.
-    console.log("users", users);
-    // console.log("userDB", userDB);
-    // users를 반복한다.
-    // userDB를 반복한다.
-    // users의 값과 user.Name의 값이 같다면 Add_Check를 실행한다.
-    userDB.map((user) => user.Name);
+
+  // 붙여넣은 값을 list로 만든다.
+  const PasteToList = () => {
+    if (!searchValue) {
+      return;
+    } else if (checks == []) {
+      return;
+    }
+    const splitNames = searchValue.split(",");
+    const trimNames = splitNames.map((name) => name.trim());
+    // checks에 붙여넣은 값과 중복되는 값이 있는지 확인하기.
+    const NewUser = () => {
+      let newUser = [];
+      for (const name of trimNames) {
+        !checks.includes(name) ? newUser.push(name) : dupNum = dupNum + 1;
+      }
+      console.log('dupNum', dupNum);
+      console.log('newUser', newUser);
+      return newUser;
+    };
+    return NewUser();
+  };
+  pasteUserList = PasteToList();
+
+  // 붙여넣은 이름 목록을 체크한다.
+  const PasteUserCheck = () => {
+    // userDB.map((pasteUserList) => pasteUserList.Name);
     let newChecks = [...checks];
 
-    users.map((Puser) => {
+    const pushUser = (user) => {
+      user.Checked = true;
+      newChecks.push(user.Name);
+    };
+
+    pasteUserList.map((Puser) => {
       userDB.map((user) => {
-        if (user.Name == Puser) {
-          user.Checked = true;
-          newChecks = [...newChecks, user.Name];
-        }
+        user.Name == Puser && pushUser(user);
+
+        // if (user.Name == Puser) {
+        //   user.Checked = true;
+        //   newChecks.push(user.Name);
+        // }
       });
-      userDB.map(
-        (user) =>
-          user.Name == Puser &&
-          console.log("Puser is ", Puser, " and ", "userDB Name is ", user.Name)
-      );
     });
     setChecks(newChecks);
   };
   // 선택된 이름을 표시해주는 함수
   const setButtonName = () => {
-    console.log('checks', checks);
+    console.log("checks", checks);
     if (checks.length == 0) {
       return "이름을 선택해주세요";
     } else return checks.join("\n");
   };
   const buttonName = setButtonName();
+
   return (
     <View style={styles.AddDataMenu}>
       {/* 날짜 메뉴 */}
@@ -326,6 +350,7 @@ export const AddHikingData = () => {
       <Pressable onPress={() => ClearData()}>
         <Text style={styles.AddDataButton}>내용 지우기</Text>
       </Pressable>
+      <View style={styles.ButtonLine}></View>
       {/* 산 modal */}
       <ModalMount
         modalMVisible={modalMVisible}
@@ -359,6 +384,9 @@ export const AddHikingData = () => {
         setSearchValue={setSearchValue}
         searchValue={searchValue}
         PasteUserCheck={PasteUserCheck}
+        closeModal={closeModal}
+        pasteUserList={pasteUserList}
+        dupNum={dupNum}
       />
     </View>
   );

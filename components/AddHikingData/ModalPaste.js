@@ -24,23 +24,13 @@ export const ModalPaste = ({
   setSearchValue,
   searchValue,
   PasteUserCheck,
+  closeModal,
+  pasteUserList,
+  dupNum,
 }) => {
-  // 검색결과를 보여줄지 결정한다.
-  const [searchedResultView, setSearchedResultView] = useState(false);
-  // 붙여넣은 항목이 정리되어 저장되는 list
-  const [pasteUserList, setPasteUserList] = useState([]);
   // 아직 미정. user를 검색한 후 check하지 못한 이름? 같은걸 넣고 싶다.
   const [searchedResult, setsearchedResult] = useState("");
 
-  // 붙여넣은 값을 list로 만든다.
-  const PasteToList = () => {
-    if (!searchValue) {
-      return;
-    }
-    const splitNames = searchValue.split(",");
-    // 붙여넣은 유저들의 list다. 정리된 상태로 이쁘게 담길 것.
-    setPasteUserList(splitNames.map((name) => name.trim()));
-  };
   const SearchPasteUser = () => {
     // 붙여넣은 값에 UserData와 같은 이름이 있는지 검색한다.
   };
@@ -86,25 +76,30 @@ export const ModalPaste = ({
             />
             <Pressable
               onPress={() => {
-                // 보여준다.
-                setSearchedResultView(true);
                 // 모름. 미정?
                 SearchPasteUser();
                 // 받은 값을 list로 바꿔준다.
-                PasteToList();
-                PasteUserCheck(pasteUserList);
+                PasteUserCheck();
               }}
             >
               <Text style={{ fontSize: "20%" }}>검색</Text>
             </Pressable>
-            <Pressable onPress={() => {setModalPaste(false);setPasteUserList([]);setSearchedResultView(false);}}>
+            <Pressable
+              onPress={() => {
+                setModalPaste(false);
+                closeModal();
+              }}
+            >
               <Text style={{ fontSize: "20%" }}>나가기</Text>
             </Pressable>
           </View>
           {/* 검색된 값과 명수, 찾지 못한 사람의 수와 이름을 보여준다. */}
           <View>
-            {searchedResultView && (
-              <Text>{pasteUserList.length}명의 사람을 찾았습니다.</Text>
+            {!searchValue == "" && (
+              <>
+                <Text>{pasteUserList.length}명의 사람을 찾았습니다.</Text>
+                <Text>이미 추가된 사람이 {dupNum}명 있습니다.</Text>
+              </>
             )}
           </View>
         </View>
