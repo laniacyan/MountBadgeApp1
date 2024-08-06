@@ -16,10 +16,9 @@ import * as SQLite from "expo-sqlite";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export const HikingRecordSub = ({
-  subMenuOff,
+  setMenu,
   hikingInfo,
   mountDB,
-  userDB,
 }) => {
   // 수정에 사용되는 state
   const [dateData, setDateData] = useState(new Date());
@@ -84,7 +83,7 @@ export const HikingRecordSub = ({
         hikingInfo.id
       );
       Alert.alert("데이터 수정 완료");
-      subMenuOff();
+      setMenu('main', nameData);
     } catch (error) {
       console.error(error);
     }
@@ -199,7 +198,7 @@ export const HikingRecordSub = ({
       <Text
         style={styles.AddDataButton}
         onPress={() => {
-          subMenuOff();
+          setMenu('main', nameData);
         }}
       >
         메인 메뉴로 돌아가기

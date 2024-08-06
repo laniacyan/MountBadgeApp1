@@ -12,7 +12,7 @@ import { CreateTable } from "./CreateTable";
 
 
 export default function App() {
-  const [screen, setScreen] = useState("");
+  const [screen, setScreen] = useState("2");
 
   useEffect(() => {
     CreateTable();

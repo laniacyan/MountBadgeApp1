@@ -17,14 +17,18 @@ import * as SQLite from "expo-sqlite";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Feather from "@expo/vector-icons/Feather";
 
-export const HikingRecordMain = ({ subMenuOn }) => {
+export const HikingRecordMain = ({ setMenu, userName, HikingInfoSet }) => {
   const [loadedData, setLoadedData] = useState([]);
   const [loadData, setLoadData] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     loadingData();
   }, [loadData]);
+
+  const MoveSub = (menu, info) => {
+    setMenu(menu);
+    HikingInfoSet(info);
+  };
 
   // 산행 검색
   // 산행 정보 불러오기
@@ -41,9 +45,7 @@ export const HikingRecordMain = ({ subMenuOn }) => {
   }
   // 산행 정보 보여주기
   const listItemViewReturn = (item) => {
-    // console.log("item", item);
-
-    if (item.Name.includes(searchValue) == true || searchValue == "") {
+    if (item.Name == userName) {
       return (
         <View
           key={item.id}
@@ -62,9 +64,6 @@ export const HikingRecordMain = ({ subMenuOn }) => {
 
             <Text style={styles.textheader}> 산:</Text>
             <Text style={styles.textbottom}>{item.Mount}</Text>
-
-            <Text style={styles.textheader}> 이름:</Text>
-            <Text style={styles.textbottom}>{item.Name}</Text>
           </View>
           <View
             style={{
@@ -75,7 +74,7 @@ export const HikingRecordMain = ({ subMenuOn }) => {
           >
             <TouchableOpacity
               style={{ marginRight: "2%" }}
-              onPress={() => subMenuOn(item)}
+              onPress={() => MoveSub("sub", item)}
             >
               <AntDesign name="filetext1" size={24} color="black" />
             </TouchableOpacity>
@@ -110,26 +109,28 @@ export const HikingRecordMain = ({ subMenuOn }) => {
   // console.log('loadedData', loadedData);
   return (
     <View style={{ flex: 1, width: "100%", marginTop: 10 }}>
-      {/* 데이터 검색 */}
-      <TextInput
-        style={styles.AddDataPlace}
-        onChangeText={setSearchValue}
-        value={searchValue}
-        placeholder="검색할 이름을 입력해 주세요."
-        placeholderTextColor={"#000000"}
-        // onSubmitEditing={loadingData}
-        onSubmitEditing={() => loadingData()}
-      />
       {/* 불러온 리스트 */}
-      <View style={{ flex: 1, backgroundColor: "white" }}>
-        <FlatList
-          style={{ marginTop: 30 }}
-          contentContainerStyle={{ paddingHorizontal: 20 }}
-          data={loadedData}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => listItemViewReturn(item)}
-        />
+      <View
+        style={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexDirection: "row",
+          padding: "1%",
+          marginLeft: "20%",
+          marginRight: "20%",
+        }}
+      >
+        <Text style={{ fontSize: "20%" }}>{userName}</Text>
+        <Pressable onPress={() => setMenu("NameList")}>
+          <Text style={{ fontSize: "20%" }}>뒤로가기</Text>
+        </Pressable>
       </View>
+      <FlatList
+        contentContainerStyle={{ paddingHorizontal: 20 }}
+        data={loadedData}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => listItemViewReturn(item)}
+      />
     </View>
   );
 };
