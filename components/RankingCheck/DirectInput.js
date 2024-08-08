@@ -34,7 +34,7 @@ export const DirectInput = ({ SearchDirect }) => {
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
-          alignContent: "center",
+          alignItems: "center",
         }}
       >
         <DateTimePicker

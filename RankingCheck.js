@@ -24,9 +24,6 @@ import { DirectInput } from "./components/RankingCheck/DirectInput";
 export const RankingCheck = () => {
   const [dateInput, setDateInput] = useState(true);
   const [searchValue, setSearchValue] = useState([]);
-  const [searchDate, setSearchDate] = useState([]);
-
-  // console.log("searchValue", searchValue);
 
   const setDayforSQL = (data) => {
     const Year = data.getFullYear();
@@ -50,8 +47,7 @@ export const RankingCheck = () => {
         "sql search code",
         `SELECT * FROM HikingData WHERE Date BETWEEN '${year}-${month}-01' AND '${year}-${month}-31';`
       );
-      // Alert.alert("산행 기록 조회 완료.");
-      setSearchDate([`${year}-${month}-01`, `${year}-${month}-31`]);
+      Alert.alert("산행 기록 조회 완료.");
       return;
     } catch (error) {
       console.error("Error testing database connection:", error);
@@ -72,8 +68,7 @@ export const RankingCheck = () => {
           startDate
         )}' AND '${setDayforSQL(endDate)}';`
       );
-      setSearchDate([setDayforSQL(startDate), setDayforSQL(endDate)]);
-      // Alert.alert("산행 기록 조회 완료.");
+      Alert.alert("산행 기록 조회 완료.");
       return;
     } catch (error) {
       console.error("Error testing database connection:", error);
@@ -102,13 +97,11 @@ export const RankingCheck = () => {
           <Text style={styles.textbottom}>{item.Mount}</Text>
 
           <Text style={styles.textheader}> 이름:</Text>
-
           <Text style={styles.textbottom}>{item.Name}</Text>
         </View>
         <View
           style={{
             flexDirection: "row",
-
             justifyContent: "space-between",
             marginRight: "2%",
           }}

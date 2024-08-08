@@ -9,6 +9,7 @@ import {
   FlatList,
   SafeAreaView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { AntDesign } from "@expo/vector-icons";
@@ -16,9 +17,11 @@ import * as SQLite from "expo-sqlite";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export const HikingRecordSub = ({
-  setMenu,
+  setMenu2,
   hikingInfo,
   mountDB,
+  userName,
+  DeleteData
 }) => {
   // 수정에 사용되는 state
   const [dateData, setDateData] = useState(new Date());
@@ -83,7 +86,7 @@ export const HikingRecordSub = ({
         hikingInfo.id
       );
       Alert.alert("데이터 수정 완료");
-      setMenu('main', nameData);
+      setMenu2("main", nameData);
     } catch (error) {
       console.error(error);
     }
@@ -135,6 +138,28 @@ export const HikingRecordSub = ({
 
   return (
     <View>
+      <View
+        style={[
+          styles.AddDataPlace,
+          {
+            alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingLeft: "10%",
+            paddingRight: "10%",
+          },
+        ]}
+      >
+        <Pressable onPress={() => setMenu2("main", userName)}>
+          <Text style={{ fontSize: "20%" }}>돌아가기</Text>
+        </Pressable>
+        <Pressable onPress={() => DeleteData(hikingInfo)}>
+          <Text style={{ fontSize: "20%" }}>데이터 삭제</Text>
+        </Pressable>
+        <Pressable onPress={() => UpdateUserInfo()}>
+          <Text style={{ fontSize: "20%" }}>수정완료</Text>
+        </Pressable>
+      </View>
       {/* 수정 메뉴 */}
       <View style={{ alignItems: "center" }}>
         {/* 날짜 */}
@@ -193,20 +218,6 @@ export const HikingRecordSub = ({
           </Pressable>
         </View>
       </View>
-      {/* 버튼 메뉴 */}
-      {/* Todo 눌렀을때 정말 돌아갈건지 물어보기. */}
-      <Text
-        style={styles.AddDataButton}
-        onPress={() => {
-          setMenu('main', nameData);
-        }}
-      >
-        메인 메뉴로 돌아가기
-      </Text>
-      <View style={styles.ButtonLine}></View>
-      <Text style={styles.AddDataButton} onPress={() => UpdateUserInfo()}>
-        수정 완료
-      </Text>
       {/* 모달 메뉴 */}
       {/* 산 modal */}
       <Modal

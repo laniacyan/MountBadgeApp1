@@ -17,20 +17,21 @@ import * as SQLite from "expo-sqlite";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Feather from "@expo/vector-icons/Feather";
 
-export const HikingRecordMain = ({ setMenu, userName, HikingInfoSet }) => {
+export const HikingRecordMain = ({ setMenu2, userName, HikingInfoSet, DeleteData }) => {
   const [loadedData, setLoadedData] = useState([]);
   const [loadData, setLoadData] = useState(false);
+  const [opacityBT, setOpacityBT] = useState(false);
 
   useEffect(() => {
     loadingData();
   }, [loadData]);
 
   const MoveSub = (menu, info) => {
-    setMenu(menu);
+    setMenu2(menu);
     HikingInfoSet(info);
   };
+  console.log("a");
 
-  // 산행 검색
   // 산행 정보 불러오기
   async function loadingData() {
     console.log("load data");
@@ -47,86 +48,73 @@ export const HikingRecordMain = ({ setMenu, userName, HikingInfoSet }) => {
   const listItemViewReturn = (item) => {
     if (item.Name == userName) {
       return (
-        <View
+        <Pressable
           key={item.id}
           style={{
             backgroundColor: "#EEE",
             marginTop: "3%",
-            padding: "2%",
-            // borderRadius: 20,
+            // paddingHorizontal: '2%',
+            paddingLeft: "2%",
             flexDirection: "row",
             justifyContent: "space-between",
+            opacity: opacityBT == item.id ? 0.5 : 1,
           }}
+          onPressIn={() => setOpacityBT(item.id)}
+          onPressOut={() => setOpacityBT(false)}
+          onPress={() => MoveSub("sub", item)}
         >
-          <View style={{ flexDirection: "row" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <Text style={styles.textheader}>날짜:</Text>
             <Text style={styles.textbottom}>{item.Date}</Text>
 
             <Text style={styles.textheader}> 산:</Text>
             <Text style={styles.textbottom}>{item.Mount}</Text>
+
+            <Text style={styles.textheader}> 이름:</Text>
+            <Text style={styles.textbottom}>{item.Name}</Text>
           </View>
-          <View
+          <Pressable
+            onPress={() => DeleteData(item)}
             style={{
+              height: "100%",
               flexDirection: "row",
               justifyContent: "space-between",
-              marginRight: "2%",
+              paddingRight: "2%",
             }}
           >
-            <TouchableOpacity
-              style={{ marginRight: "2%" }}
-              onPress={() => MoveSub("sub", item)}
-            >
-              <AntDesign name="filetext1" size={24} color="black" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => DeleteData(item)}>
-              <Feather name="delete" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
-        </View>
+            <Feather name="delete" size={30} color="black" />
+          </Pressable>
+        </Pressable>
       );
     }
   };
-  // 산행 정보 삭제
-  function DeleteData(item) {
-    // console.log("dl item", item);
-    Alert.alert("", "삭제합니까?", [
-      { text: "취소" },
-      {
-        text: "삭제",
-        onPress: async () => {
-          try {
-            const db = await SQLite.openDatabaseAsync("MountBedge.db");
-            await db.runAsync(`DELETE FROM HikingData WHERE id = ${item.id}`);
 
-            loadingData();
-          } catch (error) {
-            console.log(error);
-          }
-        },
-      },
-    ]);
-  }
   // console.log('loadedData', loadedData);
   return (
     <View style={{ flex: 1, width: "100%", marginTop: 10 }}>
-      {/* 불러온 리스트 */}
       <View
-        style={{
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexDirection: "row",
-          padding: "1%",
-          marginLeft: "20%",
-          marginRight: "20%",
-        }}
+        style={[
+          styles.AddDataPlace,
+          {
+            alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
+            paddingLeft: "10%",
+            paddingRight: "10%",
+          },
+        ]}
       >
         <Text style={{ fontSize: "20%" }}>{userName}</Text>
-        <Pressable onPress={() => setMenu("NameList")}>
-          <Text style={{ fontSize: "20%" }}>뒤로가기</Text>
-        </Pressable>
       </View>
+      {/* 불러온 리스트 */}
       <FlatList
-        contentContainerStyle={{ paddingHorizontal: 20 }}
+        contentContainerStyle={{ paddingHorizontal: "2%" }}
         data={loadedData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => listItemViewReturn(item)}
